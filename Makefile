@@ -19,7 +19,7 @@ OPENCLDIR = $(CUDA_HOME)
 CLBLASDIR = $(CLBLAS_HOME)
 
 # Disable all CUDA components (including cuBLAS) in the code to run on a non-NVIDIA system
-ENABLE_CUDA = 1
+ENABLE_CUDA = 0
 
 # ==================================================================================================
 

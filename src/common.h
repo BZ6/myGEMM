@@ -21,14 +21,17 @@
 #include <time.h>
 #include <sys/time.h>
 
+// Include kernel constants
+#include "settings.h"
+
 // =================================================================================================
 
 // Repeat all kernels multiple times to get an average timing result
-#define NUM_RUNS 4
+#define NUM_RUNS 1
 
 // Squared matrices are tested within a certain range (e.g. 1024x1024, 2048x2048, 4096x4096)
-#define MINSIZE (1024)
-#define MAXSIZE (4*1024)
+#define MINSIZE (256)
+#define MAXSIZE (1024)
 
 // Set the alpha and beta values for the cuBLAS and clBlas libraries. Note that the myGEMM kernels
 // for simplicity only support alpha values of 1 and beta values of 0.
@@ -45,6 +48,9 @@
 #define MAX_NUM_DEVICES 16
 #define MAX_DEVICE_NAME 1024
 #define CURRENT_DEVICE 0
+
+// Test settings
+#define IS_TEST
 
 // =================================================================================================
 

@@ -19,9 +19,6 @@
 // Include OpenCL 
 #include <CL/cl.h>
 
-// Include kernel constants
-#include "settings.h"
-
 // Forward declaration of the OpenCL error checking function
 void checkError(cl_int error, int line);
 
@@ -33,9 +30,6 @@ void checkError(cl_int error, int line);
 
 // Determine the location where to output the PTX code
 #define CL_PTX_FILE "bin/myGEMM.cl.ptx"
-
-// Define OpenCL compiler options, such as "-cl-nv-maxrregcount=127"
-#define COMPILER_OPTIONS ""
 
 // =================================================================================================
 

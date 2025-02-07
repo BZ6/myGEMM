@@ -14,7 +14,7 @@
 // =================================================================================================
 
 // Select a kernel
-#define KERNEL 8
+#define KERNEL 4
 
 // Constants for kernels 1 -- 5
 #define TS 32                        // The square-root of the 2D tile-size (== work-group dims)
@@ -70,5 +70,8 @@
 #define CEIL_DIV(x,y) (((x) + (y) - 1) / (y))
 #define MOD2(x,y) ((x) % (y))
 #define DIV2(x,y) ((x) / (y))
+
+// Define OpenCL compiler options, such as "-cl-nv-maxrregcount=127"
+#define COMPILER_OPTIONS "-cl-std=CL1.2"
 
 // =================================================================================================

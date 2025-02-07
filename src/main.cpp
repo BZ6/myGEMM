@@ -26,13 +26,16 @@ profile_t timers[NUM_TIMERS];
 // respect to cuBLAS (the 'golden' reference).
 int main(int argc, char* argv[]) {
 
+#ifndef IS_TEST	  
     // Start of the function
     printf("\n##\n");
     srand(time(NULL));
+#endif	    
 
     // Compute the peak performance of the GPU
     double peak = GPU_CLOCK * GPU_CORES * GPU_MOD;
 
+#ifndef IS_TEST	  
     // Print information about the different configurations
     printf("## --- Configurations ---\n");
     for (int c=0; c<=3; c++) {
@@ -46,6 +49,7 @@ int main(int argc, char* argv[]) {
             case 3: printf("## myGEMM.cl on '%s', peak: %.1lf GFLOPS\n", GPU_NAME, peak); break;
         }
     }
+#endif	    
 
     // Loop over the different input/output matrix sizes
     for (int size=MINSIZE; size<=MAXSIZE; size=size*2) {
@@ -60,9 +64,11 @@ int main(int argc, char* argv[]) {
         const int k = size;
         const int m = size;
         const int n = size;
+
+#ifndef IS_TEST	  
         printf("##\n");
         printf("## --- %dx%dx%d ---\n", k, m, n);
-
+#endif	    
         // Allocate memory for the matrices and fill the inputs with random numbers
         float* A = (float*)malloc(m*k*sizeof(float*));
         float* B = (float*)malloc(k*n*sizeof(float*));
@@ -128,8 +134,13 @@ int main(int argc, char* argv[]) {
             double seconds = wtime(timers[c]);
             double performance = gflops(timers[c]);
             double fraction = 100.0 * performance / peak;
+#ifndef IS_TEST	  
             printf("## [%9s] %6.3lf s --> %6.1lf GFLOPS (%2.0lf%%), L2 norm: %.2e\n",
                    name, seconds, performance, fraction, L2norm);
+#else
+	    printf("%9s, %2d, %2d, %s, %d, %.5f\n",
+		   name, KERNEL, TS, COMPILER_OPTIONS, n, seconds);
+#endif	    
         }
 
         // Free up the matrices
@@ -139,10 +150,12 @@ int main(int argc, char* argv[]) {
         free(goldC);
     }
 
+#ifndef IS_TEST	  
     // End of the program
     printf("##\n");
     printf("\n");
     return 0;
+#endif	    
 }
 
 // =================================================================================================
