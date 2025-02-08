@@ -1,61 +1,79 @@
+# Исследование зависимости времени исполнения ядра от различных параметров при перемножении матриц одинакового ранга
 
-Exploring the performance of SGEMM in OpenCL on NVIDIA GPUs
-=============
+Этот проект является видоизменением оригинального проекта [myGEMM](https://github.com/CNugteren/myGEMM) 
+с целью сбора экспериментальных данных
 
-Date: 31-Oct-2014 - 07-Nov-2014
+## Платформа
 
-Author: Cedric Nugteren, SURFsara (http://www.surfsara.nl)
+ - BananaPi на RISC-v архитектуре
+ - Был использован проект myGEMM с малыми измененниями
 
-This repository contains multiple OpenCL implementations of single-precision generalised matrix-multiplication (SGEMM) tuned for an NVIDIA Tesla K40m GPU. The different versions (named myGEMM) are part of a step-by-step tutorial, in which each step adds a new optimisation. The different steps and the details of the OpenCL kernel codes are all explained in depth at https://cnugteren.github.io/tutorial/pages/page1.html.
+## Инструкция по работе с проектом
 
-The OpenCL kernels can be used natively using the OpenCL framework. However, there is also a header-file included which converts the OpenCL kernels into CUDA syntax. This allows the same code to be tested through the CUDA-toolchain.
+### Общие требования
 
-Apart from the OpenCL kernel codes, this repository contains fully working host code, including a loop over different matrix sizes and different BLAS libraries. It contains code to run NVIDIA's cuBLAS as a reference and the open-source clBlas library.
+ - Наличие компилятора C++
+ - Наличие make
+ - Наличие OpenCL (можно проверить наличие с помощью ввода в консоль clinfo)
+ - Наличие clBLAS
 
-Pre-requisites:
-* A C++ compiler (tested with GCC and ICC)
-* The CUDA toolkit and NVCC compiler (tested with version 6.5)
-* OpenCL headers and libraries (part of the CUDA toolkit)
+#### Установка компилятора C++
 
-Requirements to run the performance and correctness comparisons:
-* The cuBLAS library (part of the CUDA toolkit, tested version 6.5)
-* The open-source clBlas library (tested 2.2.0)
+```bash
+sudo apt install g++
+```
 
-Usage
-=============
+#### Установка make
 
-*	Compile the code:
+```bash
+sudo apt install make
+```
 
-		make build
+#### Установка OpenCL
 
-	Compiles the benchmarking infrastructure and the myGEMM kernels. Make sure there is a "bin" and "obj" directory available. Note that you might have to edit the Makefile to set the proper locations of the CUDA and OpenCL installations on your system.
+ - К сожалению все зависит от вендора, но можно проверить наличие командой `clinfo`,
+  если он не распознал или вывел 0 платформ, то приедется установить самые свежие драйвера и 
+  поискать подходящий SDK от вендора
 
-*	Run the code:
+#### Установка clBLAS
 
-		make run
+```bash
+sudo apt install libclblas-dev
+```
 
-	This runs the code for matrices ranging from MINSIZE to MAXSIZE (defined in src/common.h). It will run cuBLAS, clBlas, and the CUDA and OpenCL versions of the myGEMM kernels. The particular kernel to be executed is defined using the KERNEL keyword in src/settings.h. This file also contains other settings you might want to modify for your particular GPU.
+### При наличии графического ускорителя c CUDA ядрами
 
-*	Inspect the code:
+ - Нужно становить cuBLAS
+ - Нужно зайти в Makefile и поменять значение ENABLE_CUDA с 0 на 1, этот параметр показывает 
+ испсользуется ли CUDA-специфичные функции и ядра
 
-		make inspect
+### Вывод программы
 
-	This generates all kinds of assembly-like versions of the CUDA kernels in the "bin" subdirectory. It also prints out statistics of the kernels such as the register usage.
+backend | kernel | work group size | opencl standart | matrix size |	work time(sec) |
+| ------ |	------ |	------ |	------ |	------ |	------ |
+| myGEMM.cl |	1 |	8 |	-cl-std=CL1.2 |	256 |	0.08002 |
 
-Minimal working example
-=============
+### Инструкция по использованию
 
-Additionally, we supply the minimal.cpp file in the 'extra' directory. This file is a self-contained minimal working example (MWE) of the most basic SGEMM kernel (myGEMM1). This can be useful if you don't want to deal with Makefiles or don't have the CUDA, cuBLAS, or clBlas installed. Note that minimal.cpp misses some features compared to the main code, but we believe that it can nevertheless be a good starting point if you want to integrate myGEMM into your own code.
+ - Если хочется просто запустить, то достаточно написать make
+ - Если хочется провести иследования, то нужно работать с файлами:
+    - research.py (с помощью него происходит автоматичекий запуск и перенаправление всего вывода в файл): 
+    можно ислледовать вас интересующие ядра(kernels) и размеры рабочих групп(work_groups)
+    - src/common.h: 
+    можно ислледовать вас интересующие размеры матрицы, которые начинаются с MINSIZE и заканчиваются MAXSIZE 
+    с шагом x2
+    - src/settings.h (тут находятся параметры связанные с ядрами):
+    можно исследовать различные ядра(KERNELS) и размеры рабочих групп(TS), но лучше не менять их руками, а 
+    использовать research.py, еще есть параметры компиляции ядер(COMPILER_OPTIONS), в которые можно через 
+    пробел указывать различные флаги, например быстрая математика, и параметры, например стандарт
+    - filter.py (фильтрует данные из выходного файла программы, который больше выполняет функцию логирования):
+    можно указывать файлы, который хотим отфильтровать(input_file) и в который хотим записать экспериментальные 
+    данные(output_file)
 
-The code can be compiled using a regular C++ compiler and only requires OpenCL installed. Example compilation from the root folder:
+## Результаты исследования
 
-	g++ -O3 -Wall -I/path/to/opencl/include extra/minimal.cpp -o bin/minimal -lOpenCL
+![image](https://github.com/user-attachments/assets/0159d49b-fbb8-418d-b5e6-67b12e3a491a)
 
-Be aware that the minimal working example does not:
-*	Iterate over multiple matrix sizes
-*	Compare performance with cuBLAS or clBlas
-*	Check for correctness of the results
-*	Check for OpenCL errors
-*	Load a kernel-file from disk, instead it is embedded as a string
-
-###################################################
+ - Успел провести только по 50 измерений для первых 5 ядер и 3 разных размеров рабочих групп
+ - В моем маленьком исследовании по графику моно судить, что в среднем лучшей конфигурацией было
+ 4 ядро с размером рабочей группы 32
