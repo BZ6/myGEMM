@@ -7,8 +7,8 @@ def run_command(command, output_file):
 
     # Записываем стандартный вывод и стандартный поток ошибок в файл
     with open(output_file, 'a') as file:
-        # file.write(f'Command: {command}\n')
-        # file.write(f'Standard Output:\n')
+        file.write(f'Command: {command}\n')
+        file.write(f'Standard Output:\n')
         file.write(f'{result.stdout}\n')
 
     return result
@@ -38,21 +38,6 @@ def all(kernel_replaces, work_groups_replaces, scenarios_to_run):
 if __name__ == "__main__":
     output_file = 'RISCV_res.csv'  # Файл для записи вывода
 
-    # Рабочие kernels: 1, 2, 4, 10
-    # kernels = [
-    #     '1"',
-    #     '2"',
-    #     '4"',
-    #     '10"'
-    # ]
-    # work_groups = [
-    #     '2"',
-    #     '4"',
-    #     '8"',
-    #     '16"',
-    #     '32"'  
-    # ]
-
     kernels = [
         '1"',
         '2"',
@@ -72,11 +57,11 @@ if __name__ == "__main__":
     ]
     scenarios = [
         'make',
-#        './bin/myGEMM'
+        './bin/myGEMM'
     ]
 
-#    for i in range(8):
-#        scenarios.append(scenarios[1])
+    for i in range(8):
+        scenarios.append(scenarios[1])
 
     # Сценарии для выполнения
     kernel_replaces = cartesian_product_concat(replaces[0], kernels)
